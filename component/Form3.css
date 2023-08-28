@@ -1,0 +1,89 @@
+/* Form3.css */
+
+.form-container {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.crop-detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+.form-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+
+
+.add-button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.remove-button{
+  position: relative;
+  background-color: #a72828;
+  color: rgb(239, 234, 234);
+  padding: 3px 20px;
+}
+
+
+.input-fields {
+  display: inline-block;
+  vertical-align: top; 
+}
+
+
+.dropdown-header {
+  position: relative;
+  display: inline-block;
+  padding: 7px 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+.zoom-options{
+  display: flex;
+    flex-direction: row; /* Stack forms vertically */
+    gap: 250px; /* Add spacing between forms */
+    padding: 20px; /* Add padding to the container */
+  
+}
+
+

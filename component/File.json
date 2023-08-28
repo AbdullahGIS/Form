@@ -1,0 +1,35 @@
+{
+  "person": {
+    "id": 1,
+    "name": "John Doe",
+    "age": 30,
+    "email": "john@example.com",
+    "address": {
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "postalCode": "12345"
+    }
+  },
+  "items": [
+    {
+      "id": 101,
+      "name": "Widget",
+      "price": 10.99,
+      "quantity": 5
+    },
+    {
+      "id": 102,
+      "name": "Gadget",
+      "price": 24.95,
+      "quantity": 2
+    },
+    {
+      "id": 103,
+      "name": "Doodad",
+      "price": 5.49,
+      "quantity": 10
+    }
+  ],
+  "isVIP": false
+}

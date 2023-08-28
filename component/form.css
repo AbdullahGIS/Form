@@ -1,0 +1,65 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  
+  .input-form {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 70%;
+    max-width: 800px;
+  }
+  
+  .input-form label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .input-form select,
+  .input-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .crop-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .crop-detail input {
+    margin-right: 10px;
+  }
+  
+  .zoom-form {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 70%;
+    max-width: 800px;
+  }
+  
+  .zoom-form label,
+  .zoom-form input {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 10px;
+  }
+  
+  .add-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-button:hover {
+    background-color: #0056b3;
+  }
+  
