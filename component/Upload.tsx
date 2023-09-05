@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import './Form3.css';
 import Select from 'react-select';
 
+
 interface FormData {
     userId: number;
-    clientId: number | null;
     cropDetails: CropDetail[];
-    selectedReports: number[]; // Change to number[]
+    selectedReports: number[];     
 }
 
 interface CropDetail {
@@ -23,11 +23,13 @@ interface ReportOption {
     value: string;
     label: string;
 }
-interface croppp{
 
-    id:number;
-    name:string
-}
+
+// interface croppp{
+
+//     id:number;
+//     name:string
+// }
 
 
 const crop: { id: number; name: string }[] = [
@@ -52,26 +54,52 @@ const Seasons: string[] = ['Fall - 23', 'Spring - 23'];
 
 const Form3 = () => {
     const showZoomForm = true;
+    const [editMode, setEditMode] = useState(false);
     const [newLayer, setNewLayer] = useState<string>('');
     const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
     const [showAddNewLayerInput, setShowAddNewLayerInput] = useState(false);
-    const [zoomForms, setZoomForms] = useState<ZoomFormData[]>([]);
+    const [zoomForms, setZoomForms] = useState<ZoomFormData[]>([
+        {zoomLevel: 0,nextZoom: 0, boundaryLayer: ''}
+    ]);
+
     const [inputFormData, setInputFormData] = useState<FormData>({
         userId: 0,
-        clientId: null,
         cropDetails: [{ cropName: '', cropSeason: [] }],
-        selectedReports: []
-    });
+        selectedReports: [],
+       });
     
-
-    const handleFormSubmit = (event: React.FormEvent) => {
+       const handleFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        console.log("data:", inputFormData);
-        console.log("report", inputFormData.selectedReports);
-        console.log("layer:", selectedLayers);
-        console.log("zoom:", zoomForms);
+    
+        const storedResponses = JSON.parse(localStorage.getItem('responses') || '[]');
+    
+        const existingResponse = storedResponses.find(
+            (response:any) => response.userId === inputFormData.userId
+        );
+    
+        if (existingResponse) {
+            alert(`A response already exists for User ID ${inputFormData.userId}.`);
+        } else {
+            const newResponse = {
+                userId: inputFormData.userId,
+                cropDetails: inputFormData.cropDetails,
+                selectedReports: inputFormData.selectedReports,
+                zoomForms,
+            };
+    
+            storedResponses.push(newResponse);
+    
+            localStorage.setItem('responses', JSON.stringify(storedResponses));
+    
+            setInputFormData({
+                userId: 0,
+                cropDetails: [{ cropName: '', cropSeason: [] }],
+                selectedReports: [],
+            });
+            setZoomForms([{ zoomLevel: 0, nextZoom: 0, boundaryLayer: '' }]);
+        }
     };
-
+    
     const handleInputChange = (field: keyof FormData, value: number | string) => {
         setInputFormData((prevData) => ({
             ...prevData,
@@ -94,15 +122,20 @@ const Form3 = () => {
         return updatedForms;
     });
 };
-
-
-const zoom = (index: number, field: string, value: string) => {
+const zoom = (index: number, field: keyof ZoomFormData, value: string) => {
+    const parsedValue = parseFloat(value);
+    
     setZoomForms((prevForms) => {
-        const updatedForms = [...prevForms];
-        updatedForms[index][field] = parseFloat(value); // Parse the value to a number
+        const updatedForms: any = [...prevForms];
+        if (value === '') {
+            updatedForms[index][field] = NaN;
+        } else if (!isNaN(parsedValue)) {
+            updatedForms[index][field] = parsedValue;
+        }
         return updatedForms;
     });
 };
+
 
     const handleRemoveButtonClick = (index: number) => {
         setZoomForms((prevForms) => {
@@ -137,25 +170,95 @@ const zoom = (index: number, field: string, value: string) => {
         { value: 'Add a new layer', label: 'Add a new layer' },
     ]);
 
+    const handleRemoveLocalStorage = () => {
+        const userIdToRemove = prompt("Enter User ID to remove data (or leave empty to remove all data):");
+    
+        if (userIdToRemove === null) {
+           
+            return;
+        }
+    
+        if (userIdToRemove === "") {
+          
+            localStorage.removeItem('responses');
+        } else {
+          
+            const storedResponses = JSON.parse(localStorage.getItem('responses') || '[]');
+    
+           
+            const indexToRemove = storedResponses.findIndex(
+                (response:any) => response.userId === Number(userIdToRemove)
+            );
+    
+            if (indexToRemove !== -1) {
+                
+                storedResponses.splice(indexToRemove, 1);
+                localStorage.setItem('responses', JSON.stringify(storedResponses));
+            } else {
+                alert(`No data found for User ID ${userIdToRemove}.`);
+            }
+        }
+        setInputFormData({
+            userId: 0,
+            cropDetails: [{ cropName: '', cropSeason: [] }],
+            selectedReports: [],
+        });
+        setZoomForms([{ zoomLevel: 0, nextZoom: 0, boundaryLayer: '' }]);
+    };
+    
+    const handleRetrieveLocalStorage = () => {
+        const userIdToEdit = prompt("Enter User ID to edit data:");
+
+        if (userIdToEdit === null) {
+            return;
+        }
+        const storedResponses = JSON.parse(localStorage.getItem('responses') || '[]');
+
+        const responseToEdit = storedResponses.find(
+            (response: any) => response.userId === Number(userIdToEdit)
+        );
+
+        if (responseToEdit) {
+            setInputFormData(responseToEdit);
+            setZoomForms(responseToEdit.zoomForms);
+            setEditMode(true);
+        } else {
+            alert(`No data found for User ID ${userIdToEdit}.`);
+        }
+    };
     const [filteredBoundaryOptions, setFilteredBoundaryOptions] = useState<ReportOption[]>(
         getFilteredBoundaryOptions()
     );
+    const handleDoneButtonClick = () => {
+        const storedResponses = JSON.parse(localStorage.getItem('responses') || '[]');
+
+        const updatedResponses = storedResponses.map((response: any) => {
+            if (response.userId === inputFormData.userId) {
+                return {
+                    ...response,
+                    cropDetails: inputFormData.cropDetails,
+                    selectedReports: inputFormData.selectedReports,
+                    zoomForms,
+                };
+            }
+            return response;
+        });
+        localStorage.setItem('responses', JSON.stringify(updatedResponses));
+        setEditMode(false);
+    };
 
     const handleAddButtonClick = () => {
-        if (showZoomForm) {
-            setZoomForms((prevForms) => [
-                ...prevForms,
-                {
-                    zoomLevel: 0,
-                    nextZoom: 0,
-                    boundaryLayer: '',
-                },
-            ]);
-        }
-    };
+    if (showZoomForm) {
+        setZoomForms((prevForms) => [
+            ...prevForms,
+            { zoomLevel: 0, nextZoom: 0, boundaryLayer: '' }, 
+        ]);
+    }
+};
 
     return (
         <div className="form-container">
+            {
             <form className="input-form" onSubmit={handleFormSubmit}>
                 <label className="form-label">User ID:</label>
                 <select
@@ -171,45 +274,7 @@ const zoom = (index: number, field: string, value: string) => {
                         </option>
                     ))}
                 </select>
-
-                <label className="form-label">Client ID:</label>
-                <select
-                    className="form-select"
-                    value={inputFormData.clientId || ''}
-                    onChange={(e) => handleInputChange('clientId', e.target.value)}
-                    required
-                >
-                    <option value="">Select Client</option>
-                    {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                            {client.name}
-                        </option>
-                    ))}
-                </select>
-
-                <label className="form-label">Select Layers:</label>
-                <Select
-                    className="layer-select"
-                    isMulti
-                    value={layerOptions.filter((layer) => selectedLayers.includes(layer.value))}
-                    options={layerOptions}
-                    onChange={(selectedOptions) => {
-                        const selectedLayerValues = selectedOptions.map((option) => option.value);
-                        setSelectedLayers(selectedLayerValues);
-
-                        const filteredOptions = layerOptions.filter((layer) =>
-                            selectedLayerValues.includes(layer.value)
-                        );
-                        setFilteredBoundaryOptions(filteredOptions);
-
-                        if (selectedLayerValues.includes('Add a new layer')) {
-                            setShowAddNewLayerInput(true);
-                        } else {
-                            setShowAddNewLayerInput(false);
-                        }
-                    }}
-                />
-
+               
                 {showAddNewLayerInput && (
                     <div>
                         <input
@@ -264,6 +329,29 @@ const zoom = (index: number, field: string, value: string) => {
                     }}
                 />
 
+<label className="form-label">Select Layers:</label>
+                <Select
+                    className="layer-select"
+                    isMulti
+                    value={layerOptions.filter((layer) => selectedLayers.includes(layer.value))}
+                    options={layerOptions}
+                    onChange={(selectedOptions) => {
+                        const selectedLayerValues = selectedOptions.map((option) => option.value);
+                        setSelectedLayers(selectedLayerValues);
+
+                        const filteredOptions = layerOptions.filter((layer) =>
+                            selectedLayerValues.includes(layer.value)
+                        );
+                        setFilteredBoundaryOptions(filteredOptions);
+
+                        if (selectedLayerValues.includes('Add a new layer')) {
+                            setShowAddNewLayerInput(true);
+                        } else {
+                            setShowAddNewLayerInput(false);
+                        }
+                    }}
+                />
+
                 {showZoomForm && (
                     <div className="zoom-form">
                         {zoomForms.map((zoomForm, index) => (
@@ -274,7 +362,7 @@ const zoom = (index: number, field: string, value: string) => {
         className="form-input"
         type="text"
         value={isNaN(zoomForm.zoomLevel) ? '' : zoomForm.zoomLevel}
-        onChange={(e) => zoom(index, 'zoomLevel', e.target.value)} // Pass 'zoomLevel' as the field name
+        onChange={(e) => zoom(index, 'zoomLevel', e.target.value)} 
     />
 </div>
 <div className="input-fields">
@@ -283,13 +371,12 @@ const zoom = (index: number, field: string, value: string) => {
         className="form-input"
         type="text"
         value={isNaN(zoomForm.nextZoom) ? '' : zoomForm.nextZoom}
-        onChange={(e) => zoom(index, 'nextZoom', e.target.value)} // Pass 'nextZoom' as the field name
+        onChange={(e) => zoom(index, 'nextZoom', e.target.value)} 
     />
 </div>
-
                                 <div className="input-fields">
-                                    <label className="form-label">Boundary Level</label>
-                                    <select
+                                    <label className="form-label">Boundary Layer</label>
+                                      <select
                                         className="form-select"
                                         value={zoomForm.boundaryLayer}
                                         onChange={(e) => handleBoundaryNameChange(index, e.target.value)}
@@ -322,9 +409,37 @@ const zoom = (index: number, field: string, value: string) => {
                 <div className="button-container">
                     <button className="submit-button" type="submit">
                         Submit
-                    </button>
+                    </button>       
+
+                    <div className="button-container">
+                <button
+                    className="retrieve-button" 
+                    onClick={handleRetrieveLocalStorage}
+                    type="button"
+                >
+                    Edit
+                </button>
+                       <div className="button-container">
+            {editMode && ( 
+                <button className="done-button" onClick={handleDoneButtonClick} type="button">
+                    Done
+                </button>
+            )}
+        </div>
+
+                <button 
+                    className="remove-local-storage-button" 
+                    onClick={handleRemoveLocalStorage}
+                    type="button"
+                >
+                    Remove 
+                </button>
+            
+            </div>
                 </div>
-            </form>
+               
+                    </form>
+            }
         </div>
     );
 };

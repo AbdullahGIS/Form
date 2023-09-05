@@ -1,5 +1,3 @@
-/* Form3.css */
-
 .form-container {
   margin: 20px;
   padding: 20px;
@@ -41,6 +39,17 @@
 }
 
 
+.submit-button {
+  text-align: right;
+}
+
+
+.submit-button,
+.retrieve-button,
+.done-button {
+  margin-left: 10px; 
+  padding: 10px 20px;}
+
 
 .add-button {
   padding: 10px 20px;
@@ -80,10 +89,19 @@
 
 .zoom-options{
   display: flex;
-    flex-direction: row; /* Stack forms vertically */
-    gap: 250px; /* Add spacing between forms */
-    padding: 20px; /* Add padding to the container */
+    flex-direction: row; 
+    gap: 250px; 
+    padding: 20px; 
   
 }
 
+.remove-local-storage-button{
+  background-color: red;
+  color:white;
+}
+.retrieve-button{
+
+  background-color: skyblue;
+  color: 'white'
+}
 
